@@ -18,6 +18,10 @@ results manually. For large numbers of pages this can take a while.
 
 Downloaded pages will be stored in seia_project_list/ folder.
 
+After download the list you can generate a YAML version with:
+
+  ruby project_list_parser.rb > project_list.yaml
+
 == To-do
 
 * Add range of time in the get_seia_project_list.py command argmuments.
