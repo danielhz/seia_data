@@ -1,7 +1,11 @@
 = SEIA Data 
 
-A set of tools for crawling, storing and analysis of data in
+A set of tools for crawling, storing and analyzing data from
 https://www.e-seia.cl, a chilean government site.
+
+== Requirements
+
+A python interpreter and a unix like system with wget.
 
 == USAGE
 
@@ -10,7 +14,9 @@ To download all pages you can use:
   get_seia_project_list.py <pages>
 
 Where pages is the number of pages that you must to lookup in the search
-results manually.
+results manually. For large numbers of pages this can take a while.
+
+Downloaded pages will be stored in seia_project_list/ folder.
 
 == To-do
 
