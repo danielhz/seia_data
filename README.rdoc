@@ -2,3 +2,25 @@
 
 A set of tools for crawling, storing and analysis of data in
 https://www.e-seia.cl, a chilean government site.
+
+== USAGE
+
+To download all pages you can use:
+
+  get_seia_project_list.py <pages>
+
+Where pages is the number of pages that you must to lookup in the search
+results manually.
+
+== To-do
+
+* Add range of time in the get_seia_project_list.py command argmuments.
+* Get the number of pages automatically for a time range.
+* Parse list pages to get the porjects id.
+* Download the project data.
+* Store the project data.
+* Write some queries.
+
+== License
+
+This is free software under GPL v3.
