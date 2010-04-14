@@ -7,7 +7,7 @@ https://www.e-seia.cl, a chilean government site.
 
 A python interpreter and a unix like system with wget.
 
-== USAGE
+== Usage
 
 To download all pages you can use:
 
