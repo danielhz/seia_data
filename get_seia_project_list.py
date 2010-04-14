@@ -27,18 +27,18 @@
 # decrecending order by creation times. You can lookup the total of
 # pages in any repsponse page.
 
-
 import os
 import sys
+import time
 
 # This crawler works with two functions. First we POST a query to the
 # web server and second we iterate with GET over the response pages.
 # We need first post the query to save server cookies.
 
 def postQuery():
-	cmd = "wget --load-cookies cookies.txt " + \
+	cmd = "wget -q --load-cookies cookies.txt " + \
 	    "--keep-session-cookies --save-cookies cookies.txt " + \
-	    "--output-document=html/list-" + ("%09d" % 1) + ".html "  + \
+	    "--output-document=seia_project_list/list-" + ("%09d" % 1) + ".html "  + \
 	    "https://www.e-seia.cl/busqueda/buscarProyectoAction.php " + \
 	    "--post-data=" + \
 	    "'ano_desde=1994&ano_hasta=2010&ano_hastac=2010&" + \
@@ -47,17 +47,23 @@ def postQuery():
 	    "id_tipoexpediente=&mes_desde=4&mes_hasta=4&" + \
 	    "mes_hastac=4&mesc_desde=4&modo=normal&nombre=&" + \
 	    "presentacion=AMBOS&sector='"
-	print(cmd)
+	print("downloading 1")
+	os.system(cmd)
+	# pidof return 0 if there is a wget process running
+	while (os.system("pidof wget") == 0):
+		time.sleep(1)
 
 def getQuery(i):
-	cmd = "wget --load-cookies cookies.txt " + \
+	cmd = "wget -q --load-cookies cookies.txt " + \
 	    "--keep-session-cookies --save-cookies cookies.txt " + \
-	    "--output-document=html/list-" + ("%09d" % i) + ".html " + \
+	    "--output-document=seia_project_list/list-" + ("%09d" % i) + ".html " + \
 	    "https://www.e-seia.cl/busqueda/buscarProyectoAction.php?" + \
 	    "_paginador_refresh=1&_paginador_fila_actual=" + repr(i)
+	print("downloading %d" % i)
 	os.system(cmd)
-	x = os.wait()
-	print(x)
+	# pidof return 0 if there is a wget process running and 256 if not
+	while (os.system("pidof wget") == 0):
+		time.sleep(1)
 
 # Crawl
 if len(sys.argv) != 2:
@@ -65,7 +71,7 @@ if len(sys.argv) != 2:
 else:
 	pages = sys.argv[1]
 	# make directory if not exists
-	if not os.path.isdir("lists"): os.mkdir("lists")
+	if not os.path.isdir("seia_project_list"): os.mkdir("seia_project_list")
 	# download pages
 	postQuery()
 	for page in range(2, int(pages)+1):
