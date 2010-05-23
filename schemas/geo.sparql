@@ -3,28 +3,58 @@
 PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl:  <http://www.w3.org/2002/07/owl#>
-PREFIX cl:   <http://chile-datos.degu.cl/data/0.1/>
 PREFIX geo:  <http://chile-datos.degu.cl/data/0.1/geo>
 PREFIX reg:  <http://chile-datos.degu.cl/data/0.1/geo/Region/>
 
-INSERT INTO <http://chile-datos.degu.cl/data/0.1/geo>
+INSERT INTO <http://chile-datos.degu.cl/data/0.1/geo/schema>
 {
-   geo:Region            rdf:type    rdfs:Class .
-   reg:some_regions 	 rdf:type    geo:Region ;
-   			 rdfs:label  "Algunas regiones" .
-   reg:1            	 rdf:type    cl:Region .
-   reg:2 		 rdf:type    cl:Region .
-   reg:3 		 rdf:type    cl:Region .
-   reg:4 		 rdf:type    cl:Region .
-   reg:5 		 rdf:type    cl:Region .
-   reg:6 		 rdf:type    cl:Region .
-   reg:7 		 rdf:type    cl:Region .
-   reg:8 		 rdf:type    cl:Region .
-   reg:9 		 rdf:type    cl:Region .
-   reg:10 		 rdf:type    cl:Region .
-   reg:11 		 rdf:type    cl:Region .
-   reg:12 		 rdf:type    cl:Region .
-   reg:13 		 rdf:type    cl:Region .
-   reg:14 		 rdf:type    cl:Region .
-   reg:15 		 rdf:type    cl:Region .
+   geo:Region rdf:type rdfs:Class ;
+   	      rdfs:label "Región" .
+   reg:some_regions rdf:type geo:Region ;
+   		    rdfs:label "Algunas regiones" .
+   reg:1 rdf:type geo:Region ;
+   	 rdfs:label "I" ;
+	 rdfs:label "Tarapacá" .
+   reg:2 rdf:type geo:Region ;
+   	 rdfs:label "II" ;
+	 rdfs:label "Antofagasta" .
+   reg:3 rdf:type geo:Region ;
+   	 rdfs:label "III" ;
+	 rdfs:label "Atacama" .
+   reg:4 rdf:type geo:Region ;
+   	 rdfs:label "IV" ;
+	 rdfs:label "Coquimbo" .
+   reg:5 rdf:type geo:Region ;
+   	 rdfs:label "V" ;
+	 rdfs:label "Valparaíso" .
+   reg:6 rdf:type geo:Region ;
+   	 rdfs:label "VI" ;
+	 rdfs:label "O'Higgins" .
+   reg:7 rdf:type geo:Region ; 
+   	 rdfs:label "VII" ;
+	 rdfs:label "Maule" .
+   reg:8 rdf:type geo:Region ;
+   	 rdfs:label "VIII" ;
+	 rdfs:label "Biobío" .
+   reg:9 rdf:type geo:Region ;
+   	 rdfs:label "IX" ;
+	 rdfs:label "Araucanía" .
+   reg:10 rdf:type geo:Region ;
+   	  rdfs:label "X" ;
+	  rdfs:label "Los Lagos" .
+   reg:11 rdf:type    geo:Region ;
+   	  rdfs:label "XI" ;
+	  rdfs:label "Aisén" .
+   reg:12 rdf:type geo:Region ;
+   	  rdfs:label "XII" ;
+	  rdfs:label "Magallanes" .
+   reg:13 rdf:type geo:Region ;
+   	  rdfs:label "RM" ;
+	  rdfs:label "Metropolitana" .
+   reg:14 rdf:type geo:Region ;
+   	  rdfs:label "XIV" ;
+	  rdfs:label "Los Ríos" .
+   reg:15 rdf:type geo:Region ;
+   	  rdfs:label "XV" ;
+	  rdfs:label "Arica y Parinacota" .
 }

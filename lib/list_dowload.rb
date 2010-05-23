@@ -45,23 +45,34 @@ optparse = OptionParser.new do |opts|
   opts.banner = "Usage: lib/list_download.rb [options]"
   # Directory
   options[:directory] = 'data'
-  opts.on('-d', '--directory', 'Directory to store downloaded files') do |dir|
+  opts.on('-d', '--directory DIRECTORY', 'Directory to store downloaded files') do |dir|
     options[:directory] = dir
   end
   # File prefix
   options[:prefix] = 'list-page-'
-  opts.on('-p', '--prefix', 'File prefix for downloaded pages') do |prefix|
+  opts.on('-p', '--prefix PREFIX', 'File prefix for downloaded pages') do |prefix|
     options[:prefix] = prefix
   end
   # Start date
   options[:start] = Date.new(1994,04,01)
-  opts.on('-b', '--bottom-date', 'Bottom limit of dates') do |date|
+  opts.on('-b', '--bottom-date DATE', 'Bottom limit of dates') do |date|
     options[:start] = date
   end
   # Stop date
   options[:stop] = Date.today
-  opts.on('-t', '--top-date', 'Top limit of dates') do |date|
+  opts.on('-t', '--top-date DATE', 'Top limit of dates') do |date|
     options[:stop] = date
+  end
+  # First page
+  options[:pages] = nil
+  opts.on('-r', '--range RANGE', 'Range of pages to be stored like 10..20') do |range|
+    pages = eval("(#{range})")
+    if Range === pages
+      options[:pages] = pages
+    else
+      puts "Bad format for range #{range}"
+      raise
+    end
   end
   # Help screen
   opts.on( '-h', '--help', 'Display this screen' ) do
@@ -106,7 +117,7 @@ url_encoding_data = Proc.new do |data|
   data.map { |k,v| "#{k}=#{v}" }.join('&')
 end
 
-# Wait the end of any wget process.
+# Wait the end of all wget processes
 wget_wait = Proc.new do
   # pidof return 0 if there is a wget process running and 256 if not.
   # Into ruby pidof return true or false if thereis or there is not
@@ -123,7 +134,7 @@ post_query = Proc.new do
          "--output-document=#{output_document.call(1)} "  +
          "https://www.e-seia.cl/busqueda/buscarProyectoAction.php " +
          "--post-data='#{url_encoding_data.call(seia_options)}'")
-  wget_wait
+  wget_wait.call
 end
 
 # Post query for page i.
@@ -133,7 +144,7 @@ get_query = Proc.new do |i|
          "--output-document=#{output_document.call(i)} " +
          "https://www.e-seia.cl/busqueda/buscarProyectoAction.php?" +
          "_paginador_fila_actual=#{i}")
-  wget_wait
+  wget_wait.call
 end
 
 # Create the directory to store downloaded pages
@@ -148,7 +159,13 @@ post_query.call(options)
 doc = open(output_document.call(1)) { |f| Hpricot(f) }
 pages = (doc/"//select[@name='pagina_offset']/option").size
 print "#{pages}\n"
-(2..pages).each do |i|
+range = (2..pages)
+unless options[:pages].nil?
+  first = [range.first, options[:pages].first].max
+  last  = [range.last, options[:pages].last].min
+  range = (first..last)
+end
+range.each do |i|
   puts "downloading #{i}/#{pages}"
   get_query.call(i)
 end

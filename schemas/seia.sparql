@@ -2,16 +2,13 @@
 
 PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX cl:   <http://chile-datos.degu.cl/data/0.1/>
-PREFIX geo:  <http://chile-datos.degu.cl/data/0.1/geo>
-PREFIX reg:  <http://chile-datos.degu.cl/data/0.1/geo/Region/>
 
-INSERT INTO  <http://chile-datos.degu.cl/data/0.1/seia>
+INSERT INTO  <http://chile-datos.degu.cl/data/0.1/seia/schema>
 {
-   seia:ProcesoProyecto rdf:type rdf:Class ;
-   			rdf:label "Proceso de Evaluación de Impacto Ambiental para Proyecto" .
-   seia:EIA rdf:type rdfs:Class ;
+   seia:Proceso rdf:type rdfs:Class ;
+   		rdfs:label "Proceso de Evaluación de Impacto Ambiental para Proyecto" .
+   seia:EIA rdfs:subClassOf seia:Proceso ;
             rdfs:label "Evaluación de Impacto Ambiental" .
-   seia:DIA rdf:type rdfs:Class ;
+   seia:DIA rdfs:subClassOf seia:Proceso ;
    	    rdfs:label "Declaración de Impacto Ambiental" .
 }
