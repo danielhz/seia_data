@@ -36,9 +36,9 @@ require 'optparse'
 # This hash will store options parsed from ARGV.
 options = {}
 
-optparse = OptionParser.new do | opts|
+optparse = OptionParser.new do |opts|
   # Usage banner displayed on top of the help screen.
-  opts.banner = "Usage: list_download.rb [options]"
+  opts.banner = "Usage: lib/list_download.rb [options]"
   # Directory
   options[:directory] = 'data'
   opts.on('-d', '--directory', 'Directory to store downloaded files') do |dir|
@@ -59,9 +59,14 @@ optparse = OptionParser.new do | opts|
   opts.on('-t', '--top-date', 'Top limit of dates') do |date|
     options[:stop] = date
   end
+  # Help screen
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
 end
 
-optparse.parse
+optparse.parse!
     
 # Options in the seia vocabulary
 seia_options = {
