@@ -144,7 +144,6 @@ post_query.call(options)
 doc = open(output_document.call(1)) { |f| Hpricot(f) }
 pages = (doc/"//select[@name='pagina_offset']/option").size
 print "#{pages}\n"
-pages = 3
 (2..pages).each do |i|
   puts "downloading #{i}/#{pages}"
   get_query.call(i)
