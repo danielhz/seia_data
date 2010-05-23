@@ -40,12 +40,12 @@ optparse = OptionParser.new do |opts|
   opts.banner = "Usage: lib/list_to_yaml.rb [options]"
   # Directory
   options[:directory] = 'data'
-  opts.on('-d', '--directory', 'Directory of downloaded pages') do |dir|
+  opts.on('-d', '--directory DIRECTORY', 'Directory of downloaded pages') do |dir|
     options[:directory] = dir
   end
   # File prefix
   options[:prefix] = 'list-page-'
-  opts.on('-p', '--prefix', 'File prefix for downloaded pages') do |prefix|
+  opts.on('-p', '--prefix PREFIX', 'File prefix for downloaded pages') do |prefix|
     options[:prefix] = prefix
   end
   # Help screen
@@ -56,6 +56,16 @@ optparse = OptionParser.new do |opts|
 end
 
 optparse.parse!
+
+# Remove quotes and white spaces.
+clean = Proc.new do |s|
+  s.gsub!(/ \"(\w)/, (9*16 + 3).chr + '\1')
+  s.gsub!(/^\"(\w)/, (9*16 + 3).chr + '\1')
+  s.gsub!(/(\w)\" /, (9*16 + 4).chr + '\1')
+  s.gsub!(/(\w)\"$/, (9*16 + 4).chr + '\1')
+  s.strip!
+  s
+end
 
 Dir["#{options[:directory]}/#{options[:prefix]}*.html"].sort.each do |file|
   output = File.new(file.sub(/.html$/, '.yaml'), 'w')
@@ -75,19 +85,19 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.html"].sort.each do |file|
     project[:id] = project[:uri].clone()
     project[:id].sub!('https://www.e-seia.cl/expediente/expediente.php?id_expediente=', '')
     project[:id].sub!('&modo=ficha', '')
-    project[:title] = (t[1]/"a").inner_html.strip.gsub('"', '\"')
+    project[:title] = clean.call((t[1]/"a").inner_html)
     project[:type] = t[2].inner_html
     project[:region] = t[3].inner_html
     project[:class] = t[4].inner_html
     # Sometimes it holds emails or phone numbers
     if not (t[5]/"span/a").empty?
-      project[:holder] = (t[5]/"span/a").inner_html.strip.gsub('"', '\"')
+      project[:holder] = clean.call((t[5]/"span/a").inner_html)
     elsif not (t[5]/"a").empty?
-      project[:holder] = (t[5]/"a").inner_html.strip.gsub('"', '\"')
+      project[:holder] = clean.call((t[5]/"a").inner_html)
     elsif not (t[5]/"span").empty?
-      project[:holder] = (t[5]/"span").inner_html.strip.gsub('"', '\"')
+      project[:holder] = clean.call((t[5]/"span").inner_html)
     else
-      project[:holder] = t[5].inner_html.strip.gsub('"', '\"')
+      project[:holder] = clean.call(t[5].inner_html)
     end
     project[:amount] = t[6].inner_html
     project[:sent_at] = t[7].inner_html.split('/').reverse.join('-')
@@ -98,4 +108,9 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.html"].sort.each do |file|
       output << "    #{k}: \"#{v}\"\n"
     end
   end
+  output.close
+  # Convert output to UTF-8
+  f = file.sub(/.html$/, '.yaml')
+  system "iconv #{f} -f WINDOWS-1252 -t UTF-8 -o #{f}.conv"
+  system "mv #{f}.conv #{f}"
 end
