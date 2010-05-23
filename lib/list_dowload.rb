@@ -19,14 +19,18 @@
 
 # Requirements for this script:
 #
-# - wget command
+# - Unix wget command
 # - Ruby hpricot gem
 #
 # This script dowlnloads all summary pages from the SEIA site.
 # Each page contains a list of summaries for projects in the SEIA
 # system. To download all pages use:
 #
-# ./download_list.rb [options]
+# ruby lib/download_list.rb [options]
+#
+# For help use:
+#
+# ruby lib/download_list.rb --help
 
 require 'date'
 require 'rubygems'
