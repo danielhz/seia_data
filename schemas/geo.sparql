@@ -1,0 +1,30 @@
+# This query inserts the schema for Geographical data.
+
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX cl:   <http://chile-datos.degu.cl/data/0.1/>
+PREFIX geo:  <http://chile-datos.degu.cl/data/0.1/geo>
+PREFIX reg:  <http://chile-datos.degu.cl/data/0.1/geo/Region/>
+
+INSERT INTO <http://chile-datos.degu.cl/data/0.1/geo>
+{
+   geo:Region            rdf:type    rdfs:Class .
+   reg:some_regions 	 rdf:type    geo:Region ;
+   			 rdfs:label  "Algunas regiones" .
+   reg:1            	 rdf:type    cl:Region .
+   reg:2 		 rdf:type    cl:Region .
+   reg:3 		 rdf:type    cl:Region .
+   reg:4 		 rdf:type    cl:Region .
+   reg:5 		 rdf:type    cl:Region .
+   reg:6 		 rdf:type    cl:Region .
+   reg:7 		 rdf:type    cl:Region .
+   reg:8 		 rdf:type    cl:Region .
+   reg:9 		 rdf:type    cl:Region .
+   reg:10 		 rdf:type    cl:Region .
+   reg:11 		 rdf:type    cl:Region .
+   reg:12 		 rdf:type    cl:Region .
+   reg:13 		 rdf:type    cl:Region .
+   reg:14 		 rdf:type    cl:Region .
+   reg:15 		 rdf:type    cl:Region .
+}
