@@ -43,15 +43,17 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.yaml"].sort.each do |file|
     out << "PREFIX #{prefix}: <#{uri}>\n"
   end
 
-  sparql_prefix.call 'rdf',  'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-  sparql_prefix.call 'owl',  'http://www.w3.org/2002/07/owl#'
-  sparql_prefix.call 'dc',   'http://purl.org/dc/elements/1.1/'
-  sparql_prefix.call 'cl',   'http://chile-datos.degu.cl/data/0.1/'
-  sparql_prefix.call 'geo',  'http://chile-datos.degu.cl/data/0.1/geo'
-  sparql_prefix.call 'reg',  'http://chile-datos.degu.cl/data/0.1/geo/Region/'
-  sparql_prefix.call 'seia', 'http://chile-datos.degu.cl/data/0.1/seia/'
-  sparql_prefix.call 'proc', 'http://chile-datos.degu.cl/data/0.1/seia/Proceso/'
-  sparql_prefix.call 'dia',  'http://chile-datos.degu.cl/data/0.1/seia/DIA/'
+  sparql_prefix.call 'rdf',   'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  sparql_prefix.call 'owl',   'http://www.w3.org/2002/07/owl#'
+  sparql_prefix.call 'dc',    'http://purl.org/dc/elements/1.1/'
+  sparql_prefix.call 'cl',    'http://chile-datos.degu.cl/data/0.1/'
+  sparql_prefix.call 'geo',   'http://chile-datos.degu.cl/data/0.1/geo'
+  sparql_prefix.call 'reg',   'http://chile-datos.degu.cl/data/0.1/geo/Region/'
+  sparql_prefix.call 'class', 'http://chile-datos.degu.cl/data/0.1/seia/class/'
+  sparql_prefix.call 'pred',  'http://chile-datos.degu.cl/data/0.1/seia/predicate/'
+  sparql_prefix.call 'dtype', 'http://chile-datos.degu.cl/data/0.1/seia/datatype/'
+  sparql_prefix.call 'proc',  'http://chile-datos.degu.cl/data/0.1/seia/element/Proceso/'
+  sparql_prefix.call 'dia',   'http://chile-datos.degu.cl/data/0.1/seia/DIA/'
 
   out << "\nINSERT INTO  <#{options[:graph]}>\n{\n"
 
@@ -77,6 +79,11 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.yaml"].sort.each do |file|
     unless proj['title'].nil?
       triple.call process_curi, "dc:title", "\"#{proj['title']}\""
     end
+    # Fecha de presentación
+    unless proj['sent_at'].nil?
+      triple.call process_curi, "seia:fechaPresentación", proj['sent_at']
+    end
+    # Tipologías
   end
   out << "}\n"
 end
