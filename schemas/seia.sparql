@@ -1,14 +1,287 @@
 # Esquema para el Sistama de Impacto ambiental.
 
-PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX class: <http://chile-datos.degu.cl/data/0.1/seia/class/>
+PREFIX pred:  <http://chile-datos.degu.cl/data/0.1/seia/predicate/>
+PREFIX dtype: <http://chile-datos.degu.cl/data/0.1/seia/datatype/>
+PREFIX tipo:  <http://chile-datos.degu.cl/data/0.1/seia/element/>
 
 INSERT INTO  <http://chile-datos.degu.cl/data/0.1/seia/schema>
 {
-   seia:Proceso rdf:type rdfs:Class ;
-   		rdfs:label "Proceso de Evaluación de Impacto Ambiental para Proyecto" .
-   seia:EIA rdfs:subClassOf seia:Proceso ;
-            rdfs:label "Evaluación de Impacto Ambiental" .
-   seia:DIA rdfs:subClassOf seia:Proceso ;
-   	    rdfs:label "Declaración de Impacto Ambiental" .
+   # Hay dos tipos de procesos, los EIA y los DIA.
+   class:Proceso rdf:type rdfs:Class ;
+   		 rdfs:label "Proceso de Evaluación de Impacto Ambiental para Proyecto" .
+   class:EIA rdfs:subClassOf seia:Proceso ;
+             rdfs:label "Evaluación de Impacto Ambiental" .
+   class:DIA rdfs:subClassOf seia:Proceso ;
+   	     rdfs:label "Declaración de Impacto Ambiental" .
+
+   # Los proyectos en proceso poseen una tipología.
+   class:Tipología rdf:type rdfs:Class ;
+   		   rdfs:label "Tipología de un proyecto" .
+   tipo:a rdf:type class:Tipología ;
+   	  rdfs:label "Acueductos, embalses o tranques y sifones" .
+   tipo:a1 rdf:type class:Tipología ;
+     	   pred:subTipologíaDe tipo:a ;
+   	   rdfs:label "Presas y embalses" .
+   tipo:a2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:a ;
+   	   rdfs:label "Drenaje o desecación" .
+   tipo:a3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:a ;
+   	   rdfs:label "Dragado" .
+   tipo:a4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:a ;
+   	   rdfs:label "Defensa o alteración de un cuerpo o curso de aguas terrestres" .
+   tipo:a5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:a ;
+   	   rdfs:label "Acueductos" .
+   tipo:a6 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:a ;
+   	   rdfs:label "Sifones" .
+   tipo:b rdf:type class:Tipología ;
+   	  rdfs:label "Lineas de transmision electrica de alto voltaje y sus subestaciones" .
+   tipo:b1 rdf:type Tipología ;
+   	   pred:subTipologíaDe tipo:b ;
+   	   rdfs:label "Líneas de transmisión eléctrica de alto voltaje" .
+   tipo:b2 rdf:type Tipología ;
+   	   pred:subTipologíaDe tipo:b ;
+   	   rdfs:label "Subestaciones" .
+   tipo:c rdf:type Tipología ;
+   	  rdfs:label "Centrales generadoras de energia mayores a 3 MW" .
+   tipo:d rdf:type Tipología ;
+   	  rdfs:label "Reactores y establecimientos nucleares e instalaciones relacionadas" .
+   tipo:e rdf:type class:Tipología ;
+   	  rdfs:label "Aeropuertos, terminales de buses, camiones y ferrocarriles, vias ferreas, estaciones de servicio, autopistas y los caminos publicos que puedan afectar areas protegidas" .
+   tipo:e1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Aeropuertos" .
+   tipo:e2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Terminales de buses" .
+   tipo:e3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Terminales de camiones" .
+   tipo:e4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Terminales de ferrocarriles" .
+   tipo:e5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Vías férreas" .
+   tipo:e6 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Estaciones de servicios" .
+   tipo:e7 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Autopistas" .
+   tipo:e8 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:e ;
+   	   rdfs:label "Caminos públicos que puedan afectar áreas protegidas" .
+   tipo:f rdf:type class:Tipología ;
+   	  rdfs:label "Puertos, vias de navegación, astilleros y terminales marítimos" .
+   tipo:f1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:f ;
+   	   rdfs:label "Puertos (agua)" .
+   tipo:f2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:f ;
+   	   rdfs:label "Vías de navegación" .
+   tipo:f3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:f ;
+   	   rdfs:label "Astilleros" .
+   tipo:f4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:f ;
+   	   rdfs:label "Terminales marítimos" .
+   tipo:g rdf:type class:Tipología ;
+   	  rdfs:label "Proyectos de desarrollo urbano o turistico, en zonas no comprendidas en alguno de los planes a que alude la letra h) del articulo 10 de la Ley" .
+   tipo:g1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:g ;
+   	   rdfs:label "Conjuntos habitacionales con una cantidad igual o superior a ochenta (80) viviendas o, tratandose de vivienda social, vivienda progresiva o infraestructura sanitaria, a ciento sesenta (160) viviendas" .
+   tipo:g2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:g ;
+   	   rdfs:label "Proyectos de equipamiento que correspondan a predios y/o edificios destinados en forma permanente a salud, educacion, seguridad, culto, deporte, esparcimiento, cultura, transporte, comercio o servicios" .
+   tipo:g3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:g ;
+   	   rdfs:label "Urbanizaciones y/o loteos con destino industrial de una superficie igual o mayor a 30,000 mt2" .
+   tipo:g4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:g ;
+   	   rdfs:label "Proyecto de desarrollo turístico (destinados en forma permanente al uso habitacional y/o de equipamiento para fines turísticos)" .
+   tipo:h rdf:type class:Tipología ;
+   	  rdfs:label "Planes Regionales de desarrollo urbano, planes intercomunales, planes reguladores comunales, planes seccionales, proyectos industriales o inmobiliarios que los modifiquen o que se ejecuten en zonas declaradas latentes o saturadas" .
+   tipo:h1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:h ;
+   	   rdfs:label "Proyectos inmobiliarios" .
+   tipo:h2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:h ;
+   	   rdfs:label "Proyectos industriales" .
+   tipo:h3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:h ;
+   	   rdfs:label "Plan regional de desarrollo urbano" .
+   tipo:h4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:h ;
+   	   rdfs:label "Plan intercomunal" .
+   tipo:h5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:h ;
+   	   rdfs:label "Planes reguladores comunales" .
+   tipo:h6 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:h ;
+   	   rdfs:label "Planes seccionales" .
+   tipo:i rdf:type class:Tipología ;
+   	  rdfs:label "Proyectos de desarrollo minero, incluidos los de carbón, petróleo y gas, comprendiendo las prospecciones, explotaciones, plantas procesadoras y dispocición de residuos estériles" .
+   tipo:i1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:i ;
+   	   rdfs:label "Extracción de pozos o canteras" .
+   tipo:i1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:i ;
+   	   rdfs:label "Extracciones en un cuerpo o curso de agua" .
+   tipo:i3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:i ;
+   	   rdfs:label "Extracciones de turba" .
+   tipo:i4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:i ;
+   	   rdfs:label "Proyecto de desarrollo minero sobre 5000 ton/mens" .
+   tipo:i5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:i ;
+   	   rdfs:label "Proyectos de desarrollo minero de petróleo y gas" .
+   tipo:j rdf:type class:Tipología ;
+   	  rdfs:label "Oleoductos, gasoductos, ductos mineros u otros análogos" .
+   tipo:j1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:j ;
+   	   rdfs:label "Oleoductos" .
+   tipo:j2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:j ;
+   	   rdfs:label "Gaseoductos" .
+   tipo:j3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:j ;
+   	   rdfs:label "Ductos mineros" .
+   tipo:j4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:j ;
+   	   rdfs:label "Ductos análogos" .
+   tipo:k rdf:type class:Tipología ;
+   	  rdfs:label "Instalaciones fabriles, tales como metalurgicas, quimicas, textiles, productoras de materiales para la construccion, de equipos y productos metalicos y curtiembres, de dimensiones industriales" .
+   tipo:k1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:k ;
+   	   rdfs:label "Instalaciones fabriles sobre 2000 KVA" .
+   tipo:k2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:k ;
+   	   rdfs:label "Instalaciones fabriles de curtiembres cuya capacidad de producción es superior a 30 mt2/día" .
+   tipo:l rdf:type class:Tipología ;
+   	  rdfs:label "Agroindustrias, mataderos, planteles y establos de crianza, lecheria y engorda de animales, de dimensiones industriales" .
+   tipo:l1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:l ;
+   	   rdfs:label "Agroindustria, donde se realicen labores u operaciones de limpieza, clasificación de productos según tamaño y calidad, tratamiento de deshidratación, congelamiento, empacamiento o transformación biológica , física o química" .
+   tipo:l2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:l ;
+   	   rdfs:label "Mataderos con una taza de faenación de 500 ton/mes" .
+   tipo:l3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:l ;
+   	   rdfs:label "Planteles y establos de crianza, lechería y/o engorda de animales => 300 unidades de animal por más de un mes" .
+   tipo:l4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:l ;
+   	   rdfs:label "Planteles y establos de crianza, engorda, postura y/o reproducción de animales" .
+   tipo:l5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:l ;
+   	   rdfs:label "Planteles y establos de crianza, lechería y engorda de otros animales, con capacidad para alojar diariamente una cantidad en peso vivo, igual o superior a (50t)" .
+   tipo:m rdf:type class:Tipología ;
+   	  rdfs:label "Proyectos de desarrollo o explotaciones forestales en suelos frágiles, en terrenos cubiertos de bosque nativo, industrias de celulosa, pasta de papel y papel, plantas astilladoras, elaboradoras de madera y aserraderos, todos de dimensiones industriales." .
+   tipo:m1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:m ;
+   	   rdfs:label "Los proyectos de desarrollo o explotación forestal en suelos frágiles o en terrenos cubiertos de bosque nativo seran aquellos que pretendan cualquier forma de aprovechamiento o cosecha final de los productos maderables del bosque" .
+   tipo:m2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:m ;
+   	   rdfs:label "Plantas astilladoras" .
+   tipo:m3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:m ;
+   	   rdfs:label "Aserraderos y plantas elaboradoras de madera" .
+   tipo:m4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:m ;
+   	   rdfs:label "Industrias de celulosas, de pasta de papel y de papel" .
+   tipo:n rdf:type class:Tipología ;
+   	  rdfs:label "Proyectos de explotacion intensiva, cultivo, y plantas procesadoras de recursos hidrobiológicos." .
+   tipo:n1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Producción anual de pelillo u otras macroalgas" .
+   tipo:n2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Producción anual de moluscos filtradores u otras especies filtradoras" .
+   tipo:n3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Producción anual igual o mayor a (35ton) tratándose de equinodermos, crustáceos y moluscos no filtradores, peces y otras especies, a través de un sistema de producción intensivo" .
+   tipo:n4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Producción anual (15 ton) cuando el cultivo se realice en ríos navegables en la zona no afecta a marea o en ríos no navegables en la zona no afecta a marea" .
+   tipo:n5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Producción anual de engorda de peces 8 ton o cultivo de microalgas y juveniles de otros recursos hidrobiológicos que requieran el suministro y/o evacuación de aguas de origen terrestre, marina o estuarina, cualquiera sea su producción anual" .
+   tipo:n6 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Plantas Procesadoras de recursos hidrobiológicos" .
+   tipo:n7 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:n ;
+   	   rdfs:label "Proyectos de explotación intensiva de recursos hidrobilógicos" .
+   tipo:ñ rdf:type class:Tipología ;
+   	  rdfs:label "Producción, almacenamiento, transporte, disposición o reutilización habituales de sustancias toxicas, explosivas, radioactivas, inflamables, corrosivas o reactivas." .
+   tipo:ñ1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:ñ ;
+   	   rdfs:label "Producción, almacenamiento, disposición o reutilización o transporte por medios terrestres de sustancias tóxicas, (sustancias señaladas en la Clase 6,1 de la NCh 382, Of 89)" .
+   tipo:ñ2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:ñ ;
+   	   rdfs:label "Producción, almacenamiento, disposición o reutilización de sustancias radiactivas en forma de fuentes no selladas o fuentes selladas de material dispersable, en cantidades superiores a los límites A2 del D.S N° 12/85, o superiores a 5000 A1 para el caso de fuentes selladas no dispersables." .
+   tipo:ñ3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:ñ ;
+   	   rdfs:label "Producción, almacenamiento, disposición o reutilizacion o trasporte por medios terrestres de sustancias explosivas, (sustancias señaladas en la Clase 1.1 de la NCh 382. Of 89)" .
+   tipo:ñ4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:ñ ;
+   	   rdfs:label "Producción, almacenamiento, disposición o reutilización o transporte por medios terrestres de sustancias inflamables, (sustancias señaladas en las clases 3 y 4 de la NCh 2120/Of 89)" .
+   tipo:ñ5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:ñ ;
+   	   rdfs:label "Producción, almacenamiento, disposición o reutilización o transporte por medios terrestres, de sustancias corrosivas o reactivas, que se realicen con una periodicidad mensual o mayor, en una cantidad igual o superior a 120,000 Kg/día." .
+   tipo:ñ6 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:ñ ;
+   	   rdfs:label "Transporte por medios terrestres de sustancias radiactivas" .
+   tipo:o rdf:type class:Tipología ;
+   	  rdfs:label "Proyectos de saneamiento ambiental, tales como sistemas de alcantarillado y agua potable, plantas de tratamiento de agua o de residuos solidos de origen domiciliario, rellenos sanitarios, emisarios submarinos, sistemas de tratamiento y disposición de residuos industriales líquidos o sólidos" .
+   tipo:o1 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Sistemas de alcantarillado de aguas servidas, que atiendan a una población igual o mayor a 2500 habitantes" .
+   tipo:o2 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Sistemas de alcantarillado o evacuación de aguas lluvias, cuando se interconecten con redes de alcantarillado de aguas servidas" .
+   tipo:o3 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Sistemas de agua potable que comprendan obras que capten y conduzcan agua desde el lugar de captación hasta su entrega en el inmueble del usuario" .
+   tipo:o4 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Plantas de tratamiento de aguas de origen domiciliario que atiendan a una población igual o mayor a 2500 habitantes" .
+   tipo:o5 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Plantas de tratamiento y/o disposición de residuos sólidos de origen domiciliario, rellenos sanitarios y estaciones de transferencia que atiendan a una población igual o mayor a 5000 habitantes" .
+   tipo:o6 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Emisarios submarinos" .
+   tipo:o7 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Sistemas de tratamiento y/o disposición de residuos industriales líquidos, que contemplen dentro de sus instalaciones lagunas de estabilización u otros depósitos de los efluentes sin tratar y tratados." .
+   tipo:o8 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Sistemas de tratamiento y/o disposición de residuos industriales sólidos" .
+   tipo:o9 rdf:type class:Tipología ;
+   	   pred:subTipologíaDe tipo:o ;
+   	   rdfs:label "Plantas de tratamiento y/o disposición de residuos peligrosos, incluidos los infecciosos" .
+   tipo:o10 rdf:type class:Tipología ;
+   	    pred:subTipologíaDe tipo:o ;
+   	    rdfs:label "Sistemas de tratamiento y/o disposición de residuos infecciosos generados por establecimientos de salud, con capacidad mayor o igual a 250 kg/día" .
+   tipo:o11 rdf:type class:Tipología ;
+   	    pred:subTipologíaDe tipo:o ;
+   	    rdfs:label "Reparación o recuperación de terrenos que contengan contaminantes, que abarquen, una superficie igual o mayor a 10000m2" .
+   tipo:p rdf:type class:Tipología ;
+   	  rdfs:label "Ejecución de obras, programas o actividades en parques nacionales, reservas nacionales, monumentos naturales, reservas de zonas vírgenes, santuarios de la naturaleza, parques marinos, reservas marinas o en cualesquiera otra area colocada bajo protección oficial, en los casos en que la legislación respectiva lo permita" .
+   tipo:q rdf:type class:Tipología ;
+   	  rdfs:label "Aplicación masiva de productos químicos en areas urbanas o zonas rurales próximas a centros poblados o cursos o masas de aguas que puedan ser afectadas" .
+   tipo:r rdf:type class:Tipología ;
+   	  rdfs:label "Cotos de caza" .
+   tipo:s rdf:type class:Tipología ;
+   	  rdfs:label "Obras que se concesionen para construir y explorar el subsuelo de los bienes nacionales de uso público" .
+   tipo:t rdf:type class:Tipología ;
+   	  rdfs:label "Ingreso voluntario" .
 }
