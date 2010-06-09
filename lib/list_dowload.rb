@@ -26,11 +26,11 @@
 # Each page contains a list of summaries for projects in the SEIA
 # system. To download all pages use:
 #
-# ruby lib/download_list.rb [options]
+# ruby lib/list_download.rb [options]
 #
 # For help use:
 #
-# ruby lib/download_list.rb --help
+# ruby lib/list_download.rb --help
 
 require 'date'
 require 'rubygems'
