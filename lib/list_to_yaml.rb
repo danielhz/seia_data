@@ -76,7 +76,20 @@ clean = Proc.new do |s|
   s
 end
 
-# Parse each document. Some parsed fields have names in sṕanish:
+# Parse each document. Some parsed properties have names in sṕanish,
+# see the output header below for documentation.
+Dir["#{options[:directory]}/#{options[:prefix]}*.html"].sort.each do |file|
+  puts "parsing #{file}"  # Verbose way
+  # Change the encoding in imput files
+  f = file.gsub(/.html$/, '')
+  system "iconv #{f}.html -f WINDOWS-1252 -t UTF-8 -o #{f}.conv"
+  doc = open("#{f}.conv") { |x| Hpricot(x) }
+  system "rm #{f}.conv"
+  # The output file
+  output = File.new(file.sub(/.html$/, '.yaml'), 'w')
+  # The header
+  output << <<-EOS
+# This file is about a list of projects, each project has the next properties:
 # - id:                  number that identify a proyect in the source database.
 # - uri:                 uri of the project record.
 # - título:              project title.
@@ -87,16 +100,9 @@ end
 # - inversión:           amount of money to invert in the project.
 # - fechaPresentación:   date on wich the project was entered.
 # - status:              the current status of the project (aproved, desisted, rejectef,...)
-Dir["#{options[:directory]}/#{options[:prefix]}*.html"].sort.each do |file|
-  puts "parsing #{file}"  # Verbose way
-  # Change the encoding in imput files
-  f = file.gsub(/.html$/, '')
-  system "iconv #{f}.html -f WINDOWS-1252 -t UTF-8 -o #{f}.conv"
-  doc = open("#{f}.conv") { |f| Hpricot(f) }
-  system "rm #{f}.conv"
-  # The output file
-  output = File.new(file.sub(/.html$/, '.yaml'), 'w')
-  output << "---\n"
+
+---\n
+EOS
   # Parse items in the list
   (doc/"//table[@class='tabla_datos']/tbody/tr").each do |tr|
     t = (tr/"td").map
