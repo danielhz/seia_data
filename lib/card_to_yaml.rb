@@ -143,12 +143,84 @@ EOS
   title = (doc/"//h1").text.sub('Ficha del Proyecto:', '').strip
   output << "    \"título\": \"#{clean.call title}\"\n"
   # tipoDePresentación
+  forma = nil
   (doc/"//h2").each do |h|
     text = h.inner_html
     pattern = /Forma de Presentaci&oacute;n:/
     if pattern =~ text
       type = text.sub(pattern, '').strip
       output << "    \"tipoDePresentación\": \"#{type}\"\n"
+      forma = h.next_node.next_node
+    end
+  end
+  # tipoDeProyecto
+  (forma/"//tr//td").each do |td|
+    if /Tipo de Proyecto/ =~ td.inner_html
+      tipo = clean.call(td.next_node.next_node.inner_html)
+      output << "    \"tipoDeProyecto\": \"#{tipo}\"\n"
+    end
+  end
+  # inversion
+  (forma/"//tr//td").each do |td|
+    if /Monto de Inversi/ =~ td.inner_html
+      inversion = clean.call(td.next_node.next_node.inner_html)
+      output << "    \"inversión\": \"#{inversion}\"\n"
+    end
+  end
+  # encargado
+  (forma/"//tr//td").each do |td|
+    if /Encargado/ =~ td.inner_html
+      encargado = td.next_node.next_node
+      output << "    \"encargado\":\n"
+      # encargado -> teléfono
+      (encargado/"//span").each do |span|
+        if /Tel.*fono:/ =~ span.attributes['title']
+          telefono = span.attributes['title'].sub(/Tel.*fono:/, '').strip
+          output << "        \"teléfono\": \"#{telefono}\"\n"
+        end
+      end
+      # encargado -> email y encargado -> nombre
+      (encargado/"//a").each do |span|
+        if /mailto:/ =~ span.attributes['href']
+          email = span.attributes['href'].sub(/mailto:/, '').strip
+          nombre = span.inner_html.strip
+          output << "        \"email\": \"#{email}\"\n"
+          output << "        \"nombre\": \"#{nombre}\"\n"
+        end
+      end
+    end
+  end
+  # status
+  (forma/"//tr//td").each do |td|
+    if /Estado/ =~ td.inner_html
+      status = clean.call((td.next_node.next_node/"//b").inner_html)
+      output << "    \"status\": \"#{status}\"\n"
+      # eventos
+      tabla = (td.next_node.next_node/"//table[@class='tabla_datos']")
+      unless tabla.nil?
+        output << "    eventos:\n"
+        (tabla/"//tr").each do |tr|
+          unless (tr/"//td")[0].nil? or /Estado/ =~ (tr/"//td")[0].inner_html
+            output << "        - Evento:\n"
+            els = (tr/"//td")
+            # status
+            output << "            \"status\": \"#{els[0].inner_html}\"\n"
+            # documento
+            output << "            \"documento\":\n"
+            doc_uri = (els[1]/"//a")[0].attributes['href']
+            doc_title = (els[1]/"//a")[0].inner_html
+            output << "                \"uri\": \"#{doc_uri}\"\n"
+            output << "                \"title\": \"#{doc_title}\"\n"
+            # número
+            output << "            \"número\": \"#{els[2].inner_html}\"\n"
+            # fecha
+            output << "            \"fecha\": \"#{els[3].inner_html}\"\n"
+            # autor
+            output << "            \"autor\": \"#{els[4].inner_html}\"\n"
+          end
+        end
+      end
+      break
     end
   end
   # titular
@@ -253,5 +325,10 @@ EOS
       output << "        \"emails\": \"#{email}\"\n"
     end
   end
+  # descripción (TODO)
+#  (forma/"//tr//td//div[@class='descripcion_scroll']").each do |d|
+#    descripcion = clean.call(d.inner_html)
+#    output << "    \"descripción\": \"#{descripcion}\"\n"
+#  end
   output.close
 end
