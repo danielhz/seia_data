@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# -*- coding: utf-8 -*-
 
 # This file is part of SEIA Data.
 #
@@ -72,6 +73,9 @@ clean = Proc.new do |s|
   s.gsub!(/^\"(\w)/, "“")
   s.gsub!(/(\w)\" /, "”")
   s.gsub!(/(\w)\"$/, "”")
+  s.gsub!(/^\"(\S)/, "“")
+  s.gsub!(/(\S)\"$/, "”")
+  s.gsub!(/\"/, "&quot;")
   s.strip!
   s
 end
