@@ -81,20 +81,11 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.yaml"].sort.each do |file|
   obj.map { |x| x['Proyecto'] }.each do |proj|
     project_id = "#{proj['id']}"
     print "Projecto #{project_id} "
-    params = {
-      :id_expediente => project_id,
-      :idExpediente  => project_id,
-      :modo => 'ficha'
-    }
-    RestClient.get("https://www.e-seia.cl/expediente/expediente.php", params) do |res|
-      if res.nil?
-        puts 'empty response'
-      else
-        puts 'OK'
-        out = open("#{options[:directory]}/card-#{"%010d" % project_id}.html", 'w')
-        out << res
-        out.close
-      end
-    end
+    res = RestClient.get(proj['uri'])
+    puts 'OK'
+    puts proj['uri']
+    out = open("#{options[:directory]}/card-#{"%010d" % project_id}.html", 'w')
+    out << res
+    out.close
   end
 end

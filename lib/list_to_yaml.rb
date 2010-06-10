@@ -96,7 +96,7 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.html"].sort.each do |file|
 # - tipoDePresentación:  process in wich the project entered (EIA or DIA)
 # - región:              geographical subdivision in wich the proyect is located.
 # - tipoDeProyecto:      project type (there is a lot of types like reservoir, piplines,...)
-# - titular:             organization or person that is the project owner.
+# - titular:             name of organization or person that is the project owner.
 # - inversión:           amount of money to invert in the project.
 # - fechaPresentación:   date on wich the project was entered.
 # - status:              the current status of the project (aproved, desisted, rejectef,...)
