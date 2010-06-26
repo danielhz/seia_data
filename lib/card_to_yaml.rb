@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# -*- coding: utf-8 -*-
 
 # This file is part of SEIA Data.
 #
@@ -76,10 +77,12 @@ clean = Proc.new do |s|
   s
 end
 
-
 # Parse each document. Some parsed properties have names in sṕanish,
 # see the output header below for documentation.
-Dir["#{options[:directory]}/card-*.html"].sort.each do |file|
+#Dir["#{options[:directory]}/card-*.html"].sort.each do |file|
+p Dir["#{options[:directory]}/card-0000*.html"].sort.select{ |x| x > "#{options[:directory]}/card-0000017210.html"}.size
+Dir["#{options[:directory]}/card-0000*.html"].sort.select{ |x| x > "#{options[:directory]}/card-0000017210.html"}.each do |file|
+#Dir["#{options[:directory]}/card-0000031488.html"].sort.each do |file|
   puts "parsing #{file}"  # Verbose way
   # Change the encoding in imput files
   f = file.gsub(/.html$/, '')
@@ -102,25 +105,25 @@ Dir["#{options[:directory]}/card-*.html"].sort.each do |file|
 # - status:              the current status of the project (aproved, desisted, rejectef,...)
 # - descripción:         project description.
 # - representanteLegal:  representative of the project owner (a person).
+# - consultora:
+# - consultor:
 # - enventos:            a list of events (instances of Evento).
+# - fechaPublicaciónDiarioOficial: date of publication in the official newspaper.
+# - fechaPublicaciónDiarioDeCirculaciónNacionalORegional: date of publication in a newspaper
+#                        with Nacional or Local coverage.
+# - participaciónCiudadana: deadline to recive comments from citizens.
+# - efectos:             project effects.
 #
 # Also some properties have subproperties:
 #
-# titular:
+# titular | consultora | representanteLegal | consultor:
 # - nombre:             name.
 # - domicilio:          address (street an number).
 # - ciudad:             addrress (city).
 # - telefono:           phone number.
 # - fax:                fax number.
 # - emails:             contact email.
-#
-# representanteLegal:
-# - nombre:             name.
-# - domicilio:          address.
-# - telefono:           phone number.
-# - fax:                fax number.
-# - emails:             email.
-#
+
 # encargado:
 # - nombre:             name.
 # - emails:             email.
@@ -135,6 +138,37 @@ Dir["#{options[:directory]}/card-*.html"].sort.each do |file|
 
 Proyecto:
 EOS
+
+  # Get text
+  get_text = Proc.new do |node|
+    node.inner_text.gsub("\302\240", " ").gsub("\r"," ").gsub("\n"," ").split(" ").join(" ").strip
+  end
+
+  # Write a leaf
+  write_data = Proc.new do |level, name, value|
+    output << " "*4*level + "\"#{name}\": \"#{value}\"\n"
+  end
+
+  # Parse a leaf
+  parse_leaf = Proc.new do |node,level,name|
+    value = get_text.call(node)
+    write_data.call(level, name, clean.call(value))
+  end
+
+  # Parse and write data
+  parse_data = Proc.new do |table, key, action|
+    (table/"//tr//td").each do |k|
+      if key =~ k.inner_html
+        # puts "found #{key}"
+        node = k.next
+        while(!node.nil?)
+          text = get_text.call(node)
+          action.call(node) if text != '' and text != ':'
+          node = node.next
+        end
+      end
+    end
+  end
 
   # id
   project_id = file.sub(/.*card-/, '').sub(/\.html/, '').to_i
@@ -153,182 +187,105 @@ EOS
       forma = h.next_node.next_node
     end
   end
-  # tipoDeProyecto
-  (forma/"//tr//td").each do |td|
-    if /Tipo de Proyecto/ =~ td.inner_html
-      tipo = clean.call(td.next_node.next_node.inner_html)
-      output << "    \"tipoDeProyecto\": \"#{tipo}\"\n"
-    end
+
+  parse_forma_leaf = Proc.new do |key, name|
+    parse_data.call(forma, key, Proc.new{ |n| parse_leaf.call(n, 1, name) })
   end
-  # inversion
-  (forma/"//tr//td").each do |td|
-    if /Monto de Inversi/ =~ td.inner_html
-      inversion = clean.call(td.next_node.next_node.inner_html)
-      output << "    \"inversión\": \"#{inversion}\"\n"
-    end
-  end
-  # encargado
-  (forma/"//tr//td").each do |td|
-    if /Encargado/ =~ td.inner_html
-      encargado = td.next_node.next_node
-      output << "    \"encargado\":\n"
-      # encargado -> teléfono
-      (encargado/"//span").each do |span|
-        if /Tel.*fono:/ =~ span.attributes['title']
-          telefono = span.attributes['title'].sub(/Tel.*fono:/, '').strip
-          output << "        \"teléfono\": \"#{telefono}\"\n"
-        end
-      end
-      # encargado -> email y encargado -> nombre
-      (encargado/"//a").each do |span|
-        if /mailto:/ =~ span.attributes['href']
-          email = span.attributes['href'].sub(/mailto:/, '').strip
-          nombre = span.inner_html.strip
-          output << "        \"email\": \"#{email}\"\n"
-          output << "        \"nombre\": \"#{nombre}\"\n"
-        end
-      end
-    end
-  end
+
+  parse_forma_leaf.call(/^Tipo de Proyecto$/, 'tipoDeProyecto')
+  parse_forma_leaf.call(/^Monto de Inversi&oacute;n$/, 'inversión')
+  parse_forma_leaf.call(/^Efectos$/, 'efectos')
+  parse_forma_leaf.call(/^Fecha Publicaci&oacute;n Diario Oficial$/, 'fechaPublicaciónDiarioOficial')
+  parse_forma_leaf.call(/^Fecha Publicación Diario de Circulación Nacional o Regional$/, 'fechaPublicaciónDiarioDeCirculaciónNacionalOReginal')
+  parse_forma_leaf.call(/^Participaci&oacute;n Ciudadana$/, 'participaciónCiudadana')
+
+  parse_data.call(forma, /^Encargado$/, Proc.new { |node|
+                    output << " "*4 + "\"encargado\":\n"
+                    # encargado -> teléfono
+                    (node/"//span").each do |span|
+                      if /^Telefono:$/ =~ span.attributes['title']
+                        telefono = span.attributes['title'].sub(/Telefono:/, '').strip
+                        write_data.call(2, 'teléfono',  telefono)
+                      end
+                    end
+                    # encargado -> email y encargado -> nombre
+                    (node/"//a").each do |span|
+                      if /mailto:/ =~ span.attributes['href']
+                        email = span.attributes['href'].sub(/mailto:/, '').strip
+                        nombre = span.inner_html.strip
+                        write_data.call(2, 'email',  email)
+                        write_data.call(2, 'nombre',  nombre)
+                      end
+                    end
+                  })
   # status
-  (forma/"//tr//td").each do |td|
-    if /Estado/ =~ td.inner_html
-      status = clean.call((td.next_node.next_node/"//b").inner_html)
-      output << "    \"status\": \"#{status}\"\n"
-      # eventos
-      tabla = (td.next_node.next_node/"//table[@class='tabla_datos']")
-      unless tabla.nil?
-        output << "    eventos:\n"
-        (tabla/"//tr").each do |tr|
-          unless (tr/"//td")[0].nil? or /Estado/ =~ (tr/"//td")[0].inner_html
-            output << "        - Evento:\n"
-            els = (tr/"//td")
-            # status
-            output << "            \"status\": \"#{els[0].inner_html}\"\n"
-            # documento
-            output << "            \"documento\":\n"
-            doc_uri = (els[1]/"//a")[0].attributes['href']
-            doc_title = (els[1]/"//a")[0].inner_html
-            output << "                \"uri\": \"#{doc_uri}\"\n"
-            output << "                \"title\": \"#{doc_title}\"\n"
-            # número
-            output << "            \"número\": \"#{els[2].inner_html}\"\n"
-            # fecha
-            output << "            \"fecha\": \"#{els[3].inner_html}\"\n"
-            # autor
-            output << "            \"autor\": \"#{els[4].inner_html}\"\n"
-          end
+  parse_data.call(forma, /^Estado$/, Proc.new { |node|
+                    unless (node/'//b').empty?
+                      # Case: with events
+                      write_data.call(1, 'status', get_text.call(node))
+                      tabla = (node/"//table[@class='tabla_datos']")
+                      unless tabla.nil?
+                        output << "    eventos:\n"
+                        (tabla/"//tr").each do |tr|
+                          unless (tr/"//td")[0].nil? or /Estado/ =~ (tr/"//td")[0].inner_html
+                            output << " "*8 + "- Evento:\n"
+                            els = (tr/"//td")
+                            write_data.call(2, 'status', get_text.call(els[0]))
+                            output << " "*8 + "\"documento\":\n"
+                            unless (els[1]/"//a").empty
+                              doc_uri   = (els[1]/"//a")[0].attributes['href']
+                              doc_title = get_text.call((els[1]/"//a")[0])
+                            else
+                              doc_title = get_text.call(els[1])
+                            end
+                            write_data.call(3, 'uri', doc_uri) unless doc_uri.nil?
+                            write_data.call(3, 'título', doc_title)
+                            write_data.call(2, 'número', els[2].inner_html)
+                            write_data.call(2, 'fecha', els[3].inner_html)
+                            write_data.call(2, 'autor', els[4].inner_html)
+                          end
+                        end
+                      end
+                    else
+                      # Case without elements
+                      write_data.call(1, 'status', get_text.call(node))
+                    end
+                  })
+  parse_agent = Proc.new do |key, name|
+    (doc/"//h2").each do |h|
+      text = h.inner_html
+      if key =~ text
+        node = h.next_sibling
+        # if node.nil?
+        #   # When h2 is in <tbody><h2>...</h2><tr>...</tr>
+        #   node = (h/'..//tbody')[0]
+        #   p node
+        # end
+        output << " "*4 + "\"#{name}\":\n"
+        parse_subcomponent = Proc.new do |key, name|
+          parse_data.call(node, key, Proc.new{ |n| parse_leaf.call(n, 2, name) })
         end
+        parse_subcomponent.call(/^Nombre$/, 'nombre')
+        parse_subcomponent.call(/^Domicilio$/, 'domicilio')
+        parse_subcomponent.call(/^Ciudad$/, 'ciudad')
+        parse_subcomponent.call(/^Telefono$/, 'teléfono')
+        parse_subcomponent.call(/^Fax$/, 'fax')
+        parse_subcomponent.call(/^E-mail$/, 'email')
       end
-      break
     end
   end
-  # titular
-  titular = nil
-  (doc/"//h2").each do |h|
-    text = h.inner_html
-    if /Titular/ =~ text
-      titular = h.next_node.next_node
+
+  parse_agent.call(/Titular/, 'titular')
+  parse_agent.call(/Representante Legal/, 'representanteLegal')
+  parse_agent.call(/Consultora/, 'consultora')
+  parse_agent.call(/Consultor/, 'consultor')
+
+  # descripción
+  (forma/"//tr//td//div[@class='descripcion_scroll']").each do |node|
+    text = get_text.call(node)
+    unless text == ''
+      write_data.call(1, 'descripción', get_text.call(node))
     end
   end
-  output << "    \"titular\":\n"
-  # titular -> nombre
-  (titular/"//tr//td").each do |td|
-    if /Nombre/ =~ td.inner_html
-      nombre = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"nombre\": \"#{nombre}\"\n"
-    end
-  end
-  # titular -> domicilio
-  (titular/"//tr//td").each do |td|
-    if /Domicilio/ =~ td.inner_html
-      domicilio = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"domicilio\": \"#{domicilio}\"\n"
-    end
-  end
-  # titular -> ciudad
-  (titular/"//tr//td").each do |td|
-    if /Ciudad/ =~ td.inner_html
-      ciudad = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"ciudad\": \"#{ciudad}\"\n"
-    end
-  end
-  # titular -> teléfono
-  (titular/"//tr//td").each do |td|
-    if /Telefono/ =~ td.inner_html
-      telefono = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"teléfono\": \"#{telefono}\"\n"
-    end
-  end
-  # titular -> fax
-  (titular/"//tr//td").each do |td|
-    if /Fax/ =~ td.inner_html
-      fax = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"fax\": \"#{fax}\"\n"
-    end
-  end
-  # titular -> teléfono
-  (titular/"//tr//td").each do |td|
-    if /E-mail/ =~ td.inner_html
-      email = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"emails\": \"#{email}\"\n"
-    end
-  end
-  # reprsentanteLegal
-  representanteLegal = nil
-  (doc/"//h2").each do |h|
-    text = h.inner_html
-    if /Representante Legal/ =~ text
-      representanteLegal = h.next_node.next_node
-    end
-  end
-  output << "    \"representanteLegal\":\n"
-  # representanteLegal -> nombre
-  (representanteLegal/"//tr//td").each do |td|
-    if /Nombre/ =~ td.inner_html
-      nombre = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"nombre\": \"#{nombre}\"\n"
-    end
-  end
-  # representanteLegal -> domicilio
-  (representanteLegal/"//tr//td").each do |td|
-    if /Domicilio/ =~ td.inner_html
-      domicilio = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"domicilio\": \"#{domicilio}\"\n"
-    end
-  end
-  # representanteLegal -> ciudad
-  (representanteLegal/"//tr//td").each do |td|
-    if /Ciudad/ =~ td.inner_html
-      ciudad = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"ciudad\": \"#{ciudad}\"\n"
-    end
-  end
-  # representanteLegal -> teléfono
-  (representanteLegal/"//tr//td").each do |td|
-    if /Telefono/ =~ td.inner_html
-      telefono = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"teléfono\": \"#{telefono}\"\n"
-    end
-  end
-  # representanteLegal -> fax
-  (representanteLegal/"//tr//td").each do |td|
-    if /Fax/ =~ td.inner_html
-      fax = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"fax\": \"#{fax}\"\n"
-    end
-  end
-  # representanteLegal -> teléfono
-  (representanteLegal/"//tr//td").each do |td|
-    if /E-mail/ =~ td.inner_html
-      email = clean.call(td.next_node.next_node.next_node.inner_html)
-      output << "        \"emails\": \"#{email}\"\n"
-    end
-  end
-  # descripción (TODO)
-#  (forma/"//tr//td//div[@class='descripcion_scroll']").each do |d|
-#    descripcion = clean.call(d.inner_html)
-#    output << "    \"descripción\": \"#{descripcion}\"\n"
-#  end
   output.close
 end
