@@ -39,6 +39,16 @@ optparse = OptionParser.new do |opts|
   opts.on('-p', '--prefix PREFIX', 'File prefix of sparql queries') do |prefix|
     options[:prefix] = prefix
   end
+  # Endpoint uri
+  options[:endpoint] = nil
+  opts.on('-e', '--endpoint ENDPOINT', 'Endpoint uri') do |endpoint|
+    options[:endpoint] = endpoint
+  end
+  # Endpoint key
+  options[:key] = nil
+  opts.on('-k', '--key KEY', 'Endpoint key') do |key|
+    options[:key] = key
+  end
   # Help screen
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
@@ -48,15 +58,10 @@ end
 
 optparse.parse!
 
-unless ARGV.size == 2
-  puts opts
-  raise
-end
-
 Dir["#{options[:directory]}/#{options[:prefix]}*.sparql"].sort.each do |file|
   puts "sending #{file}"
   query = File.new(file).read
-  RestClient.post(ARGV[0], :query => query, :key => ARGV[1], :output => 'jason') do |res|
+  RestClient.post(options[:endpoint], :query => query, :key => options[:key], :output => 'jason') do |res|
     p res
   end
 end
