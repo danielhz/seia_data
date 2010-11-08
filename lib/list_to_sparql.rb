@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# -*- coding: utf-8 -*-
 
 # This script is part of SEIA Data, A set of tools to manage
 # information in http://www.e-seia.cl, a chilean goverment web site.
@@ -40,7 +41,7 @@ optparse = OptionParser.new do |opts|
     options[:prefix] = prefix
   end
   # Endpoint graph name
-  options[:graph] = 'http://chile-datos.degu.cl/data/0.1/seia'
+  options[:graph] = 'http://chile-datos.cl/data/0.1/seia'
   opts.on('-g', '--graph GRAPH', 'Endpoint graph name') do |graph|
     options[:graph] = graph
   end
@@ -62,17 +63,14 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.yaml"].sort.each do |file|
     out << "PREFIX #{prefix}: <#{uri}>\n"
   end
 
-  sparql_prefix.call 'rdf',   'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-  sparql_prefix.call 'owl',   'http://www.w3.org/2002/07/owl#'
-  sparql_prefix.call 'dc',    'http://purl.org/dc/elements/1.1/'
-  sparql_prefix.call 'cl',    'http://chile-datos.degu.cl/data/0.1/'
-  sparql_prefix.call 'geo',   'http://chile-datos.degu.cl/data/0.1/geo'
-  sparql_prefix.call 'reg',   'http://chile-datos.degu.cl/data/0.1/geo/Region/'
-  sparql_prefix.call 'class', 'http://chile-datos.degu.cl/data/0.1/seia/class/'
-  sparql_prefix.call 'pred',  'http://chile-datos.degu.cl/data/0.1/seia/predicate/'
-  sparql_prefix.call 'dtype', 'http://chile-datos.degu.cl/data/0.1/seia/datatype/'
-  sparql_prefix.call 'proc',  'http://chile-datos.degu.cl/data/0.1/seia/element/Proceso/'
-  sparql_prefix.call 'dia',   'http://chile-datos.degu.cl/data/0.1/seia/DIA/'
+  sparql_prefix.call 'seia',               'http://chile-datos.cl/data/seia/1/'
+  sparql_prefix.call 'proceso',            'http://chile-datos.cl/data/seia/1/Proceso/'
+  sparql_prefix.call 'estatus',            'http://chile-datos.cl/data/seia/1/Estatus/'
+  sparql_prefix.call 'agente',             'http://chile-datos.cl/data/seia/1/Agente/'
+  sparql_prefix.call 'región',             'http://chile-datos.cl/data/seia/1/Región/'
+  sparql_prefix.call 'titular',            'http://chile-datos.cl/data/seia/1/Titular/'
+  sparql_prefix.call 'tipoDePresentación', 'http://chile-datos.cl/data/seia/1/TipoDePresentación/'
+  sparql_prefix.call 'tipoDeProyecto',     'http://chile-datos.cl/data/seia/1/TipoDeProyecto/'
 
   out << "\nINSERT INTO  <#{options[:graph]}>\n{\n"
 
@@ -80,29 +78,94 @@ Dir["#{options[:directory]}/#{options[:prefix]}*.yaml"].sort.each do |file|
     out << "  #{s} #{p} #{o} .\n"
   end
 
-  obj.map { |x| x['project'] }.each do |proj|
-    # Process CURI
-    process_curi = "proc:#{proj['id']}"
-    # Process type
-    case proj["type"]
-    when "DIA"
-      triple.call process_curi, "rdf:type", "seia:DIA"
-    when "EIA"
-      triple.call process_curi, "rdf:type", "seia:EIA"
-    else
-      puts "sin tipo en #{file}\n #{proj.inspect}\n"
-      raise
-    end
-    # Process source
-    triple.call process_curi, "dc:source", "<#{proj['uri']}>"
+  obj.map { |x| x['Proyecto'] }.each do |proj|
+    # Proceso
+    process_curi = "proceso:#{proj['id']}"
+    # título
     unless proj['title'].nil?
-      triple.call process_curi, "dc:title", "\"#{proj['title']}\""
+      triple.call process_curi, "seia:título", "\"#{proj['title']}\""
+    end
+    # ficha
+    unless proj['uri'].nil?
+      triple.call process_curi, "seia:ficha", "<#{proj['uri']}>"
+    end
+    # inversión
+    unless proj['inversión'].nil?
+      triple.call process_curi, "seia:inversión", "\"#{proj['inversión']}\""
+    end
+    # estatus
+    case proj['status'].downcase
+    when 'en calificación'
+      triple.call process_curi, "seia:estatus", "estatus:EnCalificación"
+    when 'aprobado'
+      triple.call process_curi, "seia:estatus", "estatus:Aprobado"
+    when 'rechazado'
+      triple.call process_curi, "seia:estatus", "estatus:Rechazado"
+    when 'no admitido a tramitacion'
+      triple.call process_curi, "seia:estatus", "estatus:NoAdmitidoATramitación"
+    when 'desistido'
+      triple.call process_curi, "seia:estatus", "estatus:Desistido"
+    when 'no calificado'
+      triple.call process_curi, "seia:estatus", "estatus:NoCalificado"
+    when 'revocado'
+      triple.call process_curi, "seia:estatus", "estatus:Revocado"
+    else
+      raise "status: #{proj['status']}"
+    end
+    # tipoProyecto
+    if proj['tipoDeProyecto']
+      triple.call process_curi, "seia:tipoDeProyecto", "tipoDeProyecto:#{proj['tipoDeProyecto']}"
     end
     # Fecha de presentación
-    unless proj['sent_at'].nil?
-      triple.call process_curi, "seia:fechaPresentación", proj['sent_at']
+    unless proj['fechaDePresentación'].nil?
+      triple.call process_curi, "seia:fechaPresentación", "\"#{proj['fechaDePresentación']}\""
     end
-    # Tipologías
+    # titular
+    unless proj['titular'].nil?
+      triple.call process_curi, "seia:titular", "titular:#{proj['id']}"
+      triple.call "titular:#{proj['id']}", "seia:nombre", "\"#{proj['titular']}\""
+    end
+    # tipoPresentación
+    if ["DIA", "EIA"].include? proj["tipoDePresentación"]
+      triple.call process_curi, "seia:tipoDePresentación", "tipoDePresentación:#{proj['tipoDePresentación']}"
+    end
+    # región
+    case proj["región"]
+    when 'Interregional'
+      triple.call process_curi, "seia:región", "región:Interregional"
+    when 'Primera'
+      triple.call process_curi, "seia:región", "región:I"
+    when 'Segunda'
+      triple.call process_curi, "seia:región", "región:II"
+    when 'Tercera'
+      triple.call process_curi, "seia:región", "región:III"
+    when 'Cuarta'
+      triple.call process_curi, "seia:región", "región:IV"
+    when /(^Quinta|V)$/
+      triple.call process_curi, "seia:región", "región:V"
+    when 'Sexta'
+      triple.call process_curi, "seia:región", "región:VI"
+    when 'Séptima'
+      triple.call process_curi, "seia:región", "región:VII"
+    when 'Octava'
+      triple.call process_curi, "seia:región", "región:VIII"
+    when 'Novena'
+      triple.call process_curi, "seia:región", "región:IX"
+    when 'Décima'
+      triple.call process_curi, "seia:región", "región:X"
+    when 'Undécima'
+      triple.call process_curi, "seia:región", "región:XI"
+    when 'Duodécima'
+      triple.call process_curi, "seia:región", "región:XII"
+    when 'RM'
+      triple.call process_curi, "seia:región", "región:RM"
+    when 'Decimocuarta'
+      triple.call process_curi, "seia:región", "región:XIV"
+    when 'Decimoquinta'
+      triple.call process_curi, "seia:región", "región:XV"
+    else
+      raise "región: #{proj['región']}"
+    end
   end
   out << "}\n"
 end
